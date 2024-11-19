@@ -1,3 +1,6 @@
+import math
+
+
 # Checks users enter yes (y) or no (n)
 def yes_no(question):
     while True:
@@ -33,30 +36,61 @@ Good luck
     ''')
 
 
-# Check that users have entered a valid
-# option based on a list
-def int_check(question):
+# Check for an integer with optional upper/lower
+# limits and an optional exit code for infinite mode
+# /quitting the game
+def int_check(question, low=None, high=None, exit_code=None):
+
+    # Set up error messages
+
+    # If any integer is allowed ...
+    if low is None and high is None:
+        error = "Please enter an integer"
+
+    # If the number needs to be more than an
+    # integer (i.e. rounds/'high number')
+    elif low is not None and high is None:
+        error = (f"Please enter an integer that is"
+                 f" more than/equal to {low}")
+
+    # If the number needs to be between low and high
+    else:
+        error = (f"Please enter an integer that is"
+                 f" between {low} and {high} (inclusive)")
+
     while True:
-        error = "Please enter an integer that is 1 or more"
+        response = input(question).lower()
 
-        to_check = input(question)
-
-        # Check for infinite mode
-        if to_check == "":
-            return "infinite"
+        # Check for infinite mode/exit code
+        if response == exit_code:
+            return response
 
         try:
-            response = int(to_check)
+            response = int(response)
 
-            # Checks that the number is more than/equal to 1
-            if response < 1:
+            # Check the integer is not too low
+            if low is not None and response < low:
                 print(error)
 
+            # Check response is more than the low number
+            elif high is not None and response > high:
+                print(error)
+
+            # If response is valid, return it
             else:
                 return response
 
         except ValueError:
             print(error)
+
+
+# Calculate the number of guesses allowed
+def calc_guesses(low, high):
+    num_range = high - low + 1
+    max_raw = math.log2(num_range)
+    max_upped = math.ceil(max_raw)
+    max_guesses = max_upped + 1
+    return max_guesses
 
 
 # Main Routine
@@ -65,7 +99,7 @@ def int_check(question):
 mode = "regular"
 rounds_played = 0
 
-print("⬆️⬆️⬆️ Rock/Paper/Scissors Game ⬇️⬇️⬇️")
+print("⬆️⬆️⬆️ Higher Lower Game ⬇️⬇️⬇️")
 print()
 
 want_instructions = yes_no("Do you want to read the instructions?")
@@ -75,11 +109,17 @@ if want_instructions == "yes":
     instruction()
 
 # Ask user for number of rounds/infinite mode
-num_rounds = int_check("How many rounds would you like? Push <enter> for infinite mode: ")
+num_rounds = int_check("Rounds <enter for infinite>: ",
+                       low=1, exit_code="")
 
 if num_rounds == "infinite":
     mode = "infinite"
     num_rounds = 5
+
+# Get game parameters
+low_num = int_check("Low number? ")
+high_num = int_check("High number? ", low=low_num+1)
+guesses_allowed = calc_guesses(low_num, high_num)
 
 # Game loop starts here
 while rounds_played < num_rounds:
