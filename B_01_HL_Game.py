@@ -1,3 +1,4 @@
+import random
 import math
 
 
@@ -98,6 +99,8 @@ def calc_guesses(low, high):
 # Intialise game variables
 mode = "regular"
 rounds_played = 0
+# This variable may have been missed in the video
+end_game = "no"
 
 print("⬆️⬆️⬆️ Higher Lower Game ⬇️⬇️⬇️")
 print()
@@ -112,7 +115,8 @@ if want_instructions == "yes":
 num_rounds = int_check("Rounds <enter for infinite>: ",
                        low=1, exit_code="")
 
-if num_rounds == "infinite":
+# Video may say if num_rounds == "infinite":, this is wrong
+if num_rounds == "":
     mode = "infinite"
     num_rounds = 5
 
@@ -133,18 +137,37 @@ while rounds_played < num_rounds:
     print(rounds_heading)
     print()
 
-    # Get user choice
-    user_choice = input("Choose: ")
-
-    # If user choice is the exit code, break the loop
-    if user_choice == "xxx":
-        break
-
+    # Add one to the number of rounds played
     rounds_played += 1
 
     # If users are in infinite mode, increase number of rounds
     if mode == "infinite":
         num_rounds += 1
+
+    # Generate a secret number between the low number and high number
+    secret = random.randint(low_num, high_num)
+    print(f"Spoiler alert: {secret}")
+    # Initialise the user choice
+    user_choice = ""
+
+    # Guessing loop
+    while user_choice != secret:
+        # Get user choice
+        user_choice = int_check("Choose: ", low_num, high_num, "xxx")
+
+        # If user choice is the exit code, break the loop
+        if user_choice == "xxx":
+            end_game = "yes"
+            break
+        elif user_choice < secret:
+            print("The number is higher! ")
+        elif user_choice > secret:
+            print("The number is lower! ")
+        else:
+            print("You got it!!!")
+
+    if end_game == "yes":
+        break
 
 # Game loop ends here
 
